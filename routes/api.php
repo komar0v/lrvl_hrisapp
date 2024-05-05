@@ -3,6 +3,7 @@
 use App\Http\Controllers\Account\Account;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\User\UserCtrlr;
+use App\Http\Controllers\Employee\Employee AS EmployeeCtrlr;
 
 /*
 |--------------------------------------------------------------------------
@@ -32,5 +33,12 @@ Route::middleware(['auth:api', 'auth.role:user,superadmin'])->group(function () 
 Route::middleware(['auth:api', 'auth.role:superadmin'])->prefix('user_account')->group(function () {
     Route::post('/user/register', [UserCtrlr::class, 'registerUser']);
     Route::get('/user/all', [UserCtrlr::class, 'getAllUsers']);
+});
+
+//--employee_managements
+Route::middleware(['auth:api', 'auth.role:superadmin'])->prefix('emp_mgmts')->group(function () {
+    Route::post('/employee/register', [EmployeeCtrlr::class, 'addNewEmployee']);
+    Route::post('/employee/upload_bulk', [EmployeeCtrlr::class, 'importNewEmployeeFromFile']);
+    // Route::get('/employee/all', [EmployeeCtrlr::class, 'getAllUsers']);
 });
 //END OF SUPERADMIN ROUTES
