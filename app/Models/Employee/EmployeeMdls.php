@@ -5,6 +5,7 @@ namespace App\Models\Employee;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Concerns\HasUuids;
+use Illuminate\Support\Facades\DB;
 
 class EmployeeMdls extends Model
 {
@@ -22,4 +23,9 @@ class EmployeeMdls extends Model
         'gender',
         'marital_status'
     ];
+
+    protected function getAllEmployees()
+    {
+        return DB::table($this->table)->get();
+    }
 }

@@ -50,4 +50,8 @@ class Employee extends Controller
     
         return response()->json(['message' => "$totalRows Employees added successfully"], 201);
     }
+
+    public function showAllEmployees(){
+        return response()->json(M_Employee::getAllEmployees(), 200);
+    }
 }

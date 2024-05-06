@@ -4,6 +4,9 @@ use App\Http\Controllers\Account\Account;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\User\UserCtrlr;
 use App\Http\Controllers\Employee\Employee AS EmployeeCtrlr;
+use App\Http\Controllers\Vacancy\ApplyJob;
+use App\Http\Controllers\Vacancy\Job AS JobCtrlr;
+use App\Http\Controllers\Applicants\Applicant AS ApplicantCtrlr;
 
 /*
 |--------------------------------------------------------------------------
@@ -17,6 +20,9 @@ use App\Http\Controllers\Employee\Employee AS EmployeeCtrlr;
 */
 //NO AUTH ROUTES
 Route::post('/login', [Account::class, 'login']);
+Route::get('/vacancy/job/all', [JobCtrlr::class, 'showAllJobs']);
+Route::get('/vacancy/job/{jobId}/detail', [JobCtrlr::class, 'jobDetails']);
+Route::post('/vacancy/job/{jobId}/apply', [ApplyJob::class, 'applyJob']);
 //END OF NO AUTH ROUTES
 
 //UNIVERSAL ROUTES, ACCESSIBLE BY ALL ROLES
@@ -39,6 +45,19 @@ Route::middleware(['auth:api', 'auth.role:superadmin'])->prefix('user_account')-
 Route::middleware(['auth:api', 'auth.role:superadmin'])->prefix('emp_mgmts')->group(function () {
     Route::post('/employee/register', [EmployeeCtrlr::class, 'addNewEmployee']);
     Route::post('/employee/upload_bulk', [EmployeeCtrlr::class, 'importNewEmployeeFromFile']);
-    // Route::get('/employee/all', [EmployeeCtrlr::class, 'getAllUsers']);
+    Route::get('/employee/all', [EmployeeCtrlr::class, 'showAllEmployees']);
+});
+
+//--job_managements
+Route::middleware(['auth:api', 'auth.role:superadmin'])->prefix('job_mgmts')->group(function () {
+    Route::post('/job/create', [JobCtrlr::class, 'createNewJobOpenings']);
+    Route::get('/job/all', [JobCtrlr::class, 'showAllJobs']);
+});
+
+//--job_managements
+Route::middleware(['auth:api', 'auth.role:superadmin'])->prefix('applicant_mgmts')->group(function () {
+    Route::get('/applicant/all', [ApplicantCtrlr::class, 'showAllApplicants']);
+    Route::get('/applicant/{applicantId}/download_resume', [ApplicantCtrlr::class, 'downloadApplicantResume']);
+    Route::post('/applicant/{applicantId}/manual_process', [ApplicantCtrlr::class, 'manualProcessApplicant']);
 });
 //END OF SUPERADMIN ROUTES
