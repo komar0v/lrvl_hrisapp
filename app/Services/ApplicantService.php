@@ -3,7 +3,9 @@
 namespace App\Services;
 
 use GuzzleHttp\Client;
+use Illuminate\Support\Facades\Log;
 use App\Models\Applicants\Applicant;
+use Exception;
 
 class ApplicantService
 {
@@ -44,6 +46,63 @@ class ApplicantService
         //     // Log or handle API request failure
         //     \Log::error("Failed to process applicant {$applicant->id}");
         // }
+        
+    }
+
+    public function processPendingResumes()
+    {
+        $countPendingResumes = Applicant::where('status', 'Pending')->count();
+        if ($countPendingResumes === 0) {
+            Log::info('No pending resumes to process.');
+        }else{
+            Log::info("Starting auto process $countPendingResumes pending resumes.");
+
+            // Get all applicants with status 'Pending'
+            // $applicants = Applicant::where('status', 'Pending')->get();
+
+            $applicants = Applicant::where('status', 'Pending')->limit(1)->get();
+            Log::info("Processing one resume every one minute.");
+            foreach ($applicants as $applicant) {
+                // Process each applicant
+                $this->autoProcessApplicantResume($applicant);
+            }
+        }
+    }
+
+    private function autoProcessApplicantResume($applicant)
+    {
+        $client = new Client();
+        $apiEndpoint=env('AI_API_URL').'/resume-insight';
+
+        $payload = [
+            'multipart' => [
+                [
+                    'name' => 'requirements',
+                    'contents' => $applicant['requirements'],
+                ],
+                [
+                    'name' => 'resume',
+                    'contents' => $applicant['resume_or_cv'],
+                    'filename' => 'resume.pdf',
+                ],
+            ],
+        ];
+
+        try {
+            $response = $client->post($apiEndpoint, $payload);
+
+        if ($response->getStatusCode() === 200) {
+            $applicant->status = 'Processed';
+            $applicant->reason = json_decode($response->getBody()->getContents(), true)['message'];
+            $applicant->save();
+            Log::info("Processed applicant {$applicant->id}");
+        } else {
+            // Log or handle API request failure
+            Log::error("Failed to process applicant {$applicant->id}");
+        }
+        }catch(Exception $e) {
+            Log::error('Error processing applicant resumes: ' . $e->getMessage());
+        }
         
     }
 }

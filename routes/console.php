@@ -2,6 +2,7 @@
 
 use Illuminate\Foundation\Inspiring;
 use Illuminate\Support\Facades\Artisan;
+use App\Console\Commands\ProcessApplicantResumes;
 
 /*
 |--------------------------------------------------------------------------
@@ -17,3 +18,8 @@ use Illuminate\Support\Facades\Artisan;
 Artisan::command('inspire', function () {
     $this->comment(Inspiring::quote());
 })->purpose('Display an inspiring quote');
+
+Artisan::command('applicants:auto-process', function () {
+    $this->info('Processing applicant resumes...');
+    $this->call('applicants:auto-process-resumes');
+})->purpose('Auto processing applicants every minute');
