@@ -42,6 +42,7 @@ class Applicant extends Controller
 
         $applicantData=[
             'requirements'=>$job['requirements'],
+            'cities'=>$job['cities'],
             'resume_or_cv'=>$applicant->resume_or_cv,
         ];
 
@@ -51,11 +52,14 @@ class Applicant extends Controller
             'job_to_apply'=>$job['title']
         ];
 
-        $analizeApplicantResume = $this->applicantService->manualProcessApplicantResume($applicantData)['message'];
+        $analizeApplicantResume = $this->applicantService->manualProcessApplicantResume($applicantData);
+        $applicantResultReason = $analizeApplicantResume['message'];
+        $applicantStatus = $analizeApplicantResume['status'];
 
         $data=[
             'status'=>'Processed',
-            'reason'=>$analizeApplicantResume
+            'recommendation'=>$applicantStatus,
+            'reason'=>$applicantResultReason
         ];
 
         $applicantMdl = M_Applicant::find($applicantId);

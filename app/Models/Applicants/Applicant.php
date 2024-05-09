@@ -19,6 +19,7 @@ class Applicant extends Model
         'applicant_email',
         'resume_or_cv',
         'status',
+        'recommendation',
         'reason',
     ];
 

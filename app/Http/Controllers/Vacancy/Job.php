@@ -13,12 +13,14 @@ class Job extends Controller
             'title' => 'required|string',
             'description' => 'required',
             'requirements' => 'required',
+            'cities' => 'required',
         ]);
 
         $data=[
             'title'=>$requestData['title'],
             'description'=>$requestData['description'],
-            'requirements'=>$requestData['requirements']
+            'requirements'=>$requestData['requirements'],
+            'cities'=>$requestData['cities']
         ];
 
         $job = M_Job::create($data);

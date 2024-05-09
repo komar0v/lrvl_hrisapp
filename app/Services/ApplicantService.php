@@ -5,7 +5,10 @@ namespace App\Services;
 use GuzzleHttp\Client;
 use Illuminate\Support\Facades\Log;
 use App\Models\Applicants\Applicant;
+use App\Models\Vacancy\Job AS M_Job;
 use Exception;
+
+use function PHPUnit\Framework\isEmpty;
 
 class ApplicantService
 {
@@ -23,6 +26,10 @@ class ApplicantService
                 [
                     'name' => 'requirements',
                     'contents' => $applicantData['requirements'],
+                ],
+                [
+                    'name' => 'cities',
+                    'contents' => $applicantData['cities'],
                 ],
                 [
                     'name' => 'resume',
@@ -71,6 +78,8 @@ class ApplicantService
 
     private function autoProcessApplicantResume($applicant)
     {
+        Log::info("Processing applicant {$applicant->id}");
+        $job= M_Job::find($applicant->job_id);
         $client = new Client();
         $apiEndpoint=env('AI_API_URL').'/resume-insight';
 
@@ -78,7 +87,11 @@ class ApplicantService
             'multipart' => [
                 [
                     'name' => 'requirements',
-                    'contents' => $applicant['requirements'],
+                    'contents' => $job['requirements'],
+                ],
+                [
+                    'name' => 'cities',
+                    'contents' => $job['cities'],
                 ],
                 [
                     'name' => 'resume',
@@ -90,10 +103,12 @@ class ApplicantService
 
         try {
             $response = $client->post($apiEndpoint, $payload);
-
+            $responseData = json_decode($response->getBody()->getContents(), true);
+            // Log::info(json_decode($response->getBody()->getContents(), true));
         if ($response->getStatusCode() === 200) {
             $applicant->status = 'Processed';
-            $applicant->reason = json_decode($response->getBody()->getContents(), true)['message'];
+            $applicant->recommendation = $responseData['status'];
+            $applicant->reason = $responseData['message'];
             $applicant->save();
             Log::info("Processed applicant {$applicant->id}");
         } else {
