@@ -57,6 +57,7 @@ Route::middleware(['auth:api', 'auth.role:superadmin'])->prefix('job_mgmts')->gr
 //--job_managements
 Route::middleware(['auth:api', 'auth.role:superadmin'])->prefix('applicant_mgmts')->group(function () {
     Route::get('/applicant/all', [ApplicantCtrlr::class, 'showAllApplicants']);
+    Route::get('/applicant/{applicantId}/details', [ApplicantCtrlr::class, 'detailsApplicant']);
     Route::get('/applicant/{applicantId}/download_resume', [ApplicantCtrlr::class, 'downloadApplicantResume']);
     Route::post('/applicant/{applicantId}/manual_process', [ApplicantCtrlr::class, 'manualProcessApplicant']);
 });

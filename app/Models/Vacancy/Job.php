@@ -17,6 +17,7 @@ class Job extends Model
         'title',
         'description',
         'cities',
+        'divisions',
         'requirements',
     ];
 

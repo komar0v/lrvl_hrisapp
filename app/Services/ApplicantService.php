@@ -8,8 +8,6 @@ use App\Models\Applicants\Applicant;
 use App\Models\Vacancy\Job AS M_Job;
 use Exception;
 
-use function PHPUnit\Framework\isEmpty;
-
 class ApplicantService
 {
     public function addNewApplicant($applicantData)
@@ -20,7 +18,7 @@ class ApplicantService
     public function manualProcessApplicantResume($applicantData){
         $client = new Client();
         $apiEndpoint=env('AI_API_URL').'/resume-insight';
-
+        Log::info("Manual process applicant resume");
         $payload = [
             'multipart' => [
                 [
@@ -32,6 +30,10 @@ class ApplicantService
                     'contents' => $applicantData['cities'],
                 ],
                 [
+                    'name' => 'divisions',
+                    'contents' => $applicantData['divisions'],
+                ],
+                [
                     'name' => 'resume',
                     'contents' => $applicantData['resume_or_cv'],
                     'filename' => 'resume.pdf',
@@ -40,6 +42,7 @@ class ApplicantService
         ];
 
         $response = $client->post($apiEndpoint, $payload);
+        Log::info("Done manual process applicant resume");
 
         return json_decode($response->getBody()->getContents(), true);
 
@@ -94,6 +97,10 @@ class ApplicantService
                     'contents' => $job['cities'],
                 ],
                 [
+                    'name' => 'divisions',
+                    'contents' => $job['divisions'],
+                ],
+                [
                     'name' => 'resume',
                     'contents' => $applicant['resume_or_cv'],
                     'filename' => 'resume.pdf',
@@ -105,16 +112,16 @@ class ApplicantService
             $response = $client->post($apiEndpoint, $payload);
             $responseData = json_decode($response->getBody()->getContents(), true);
             // Log::info(json_decode($response->getBody()->getContents(), true));
-        if ($response->getStatusCode() === 200) {
-            $applicant->status = 'Processed';
-            $applicant->recommendation = $responseData['status'];
-            $applicant->reason = $responseData['message'];
-            $applicant->save();
-            Log::info("Processed applicant {$applicant->id}");
-        } else {
-            // Log or handle API request failure
-            Log::error("Failed to process applicant {$applicant->id}");
-        }
+            if ($response->getStatusCode() === 200) {
+                $applicant->status = 'Processed';
+                $applicant->recommendation = $responseData['status'];
+                $applicant->reason = $responseData['message'];
+                $applicant->save();
+                Log::info("Processed applicant {$applicant->id}");
+            } else {
+                // Log or handle API request failure
+                Log::error("Failed to process applicant {$applicant->id}");
+            }
         }catch(Exception $e) {
             Log::error('Error processing applicant resumes: ' . $e->getMessage());
         }

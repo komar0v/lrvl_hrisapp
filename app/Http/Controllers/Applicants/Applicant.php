@@ -43,6 +43,7 @@ class Applicant extends Controller
         $applicantData=[
             'requirements'=>$job['requirements'],
             'cities'=>$job['cities'],
+            'divisions'=>$job['divisions'],
             'resume_or_cv'=>$applicant->resume_or_cv,
         ];
 
@@ -72,4 +73,15 @@ class Applicant extends Controller
     public function showAllApplicants(){
         return response()->json(M_Applicant::getAllAplicants(), 200);
     }
+
+    public function detailsApplicant($applicantId){
+        $applicantData = M_Applicant::applicantDetail($applicantId);
+
+        if (!$applicantData) {
+            return response()->json(["message" => "Data tidak ditemukan"], 404);
+        }
+        return response()->json($applicantData, 200);
+    }
+
+    
 }
