@@ -7,6 +7,9 @@ use App\Http\Controllers\Employee\Employee AS EmployeeCtrlr;
 use App\Http\Controllers\Vacancy\ApplyJob;
 use App\Http\Controllers\Vacancy\Job AS JobCtrlr;
 use App\Http\Controllers\Applicants\Applicant AS ApplicantCtrlr;
+use App\Http\Controllers\Log\logview AS LogView;
+use App\Http\Controllers\Log\schedulerlog AS SchedulerLogView;
+use App\Http\Controllers\Counters\Applicants AS ApplicantCounters;
 
 /*
 |--------------------------------------------------------------------------
@@ -52,13 +55,29 @@ Route::middleware(['auth:api', 'auth.role:superadmin'])->prefix('emp_mgmts')->gr
 Route::middleware(['auth:api', 'auth.role:superadmin'])->prefix('job_mgmts')->group(function () {
     Route::post('/job/create', [JobCtrlr::class, 'createNewJobOpenings']);
     Route::get('/job/all', [JobCtrlr::class, 'showAllJobs']);
+    Route::get('/job/{jobId}/details', [JobCtrlr::class, 'jobDetails']);
+    Route::post('/job/{jobId}/update', [JobCtrlr::class, 'updateJob']);
 });
 
-//--job_managements
+//--applicant_managements
 Route::middleware(['auth:api', 'auth.role:superadmin'])->prefix('applicant_mgmts')->group(function () {
     Route::get('/applicant/all', [ApplicantCtrlr::class, 'showAllApplicants']);
+    Route::get('/applicant/filter/{status}', [ApplicantCtrlr::class, 'filterApplicant']);
     Route::get('/applicant/{applicantId}/details', [ApplicantCtrlr::class, 'detailsApplicant']);
     Route::get('/applicant/{applicantId}/download_resume', [ApplicantCtrlr::class, 'downloadApplicantResume']);
     Route::post('/applicant/{applicantId}/manual_process', [ApplicantCtrlr::class, 'manualProcessApplicant']);
+});
+
+//--counters_for_statistics
+Route::middleware(['auth:api', 'auth.role:superadmin'])->prefix('counters')->group(function () {
+    Route::get('/applicant/count_applicant', [ApplicantCounters::class, 'countApplicants']);
+    Route::get('/applicant/count_applicant_results', [ApplicantCounters::class, 'countApplicantResults']);
+});
+
+//--app_system
+Route::middleware(['auth:api', 'auth.role:superadmin'])->prefix('sys')->group(function () {
+    Route::get('/log/get_log', [LogView::class, 'getSystemLog']);
+    Route::get('/log/get_scheduler_log', [SchedulerLogView::class, 'getScheduleList']);
+    Route::post('/log/clear_log', [LogView::class, 'clearSystemLog']);
 });
 //END OF SUPERADMIN ROUTES

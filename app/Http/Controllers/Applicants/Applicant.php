@@ -83,5 +83,11 @@ class Applicant extends Controller
         return response()->json($applicantData, 200);
     }
 
+    public function filterApplicant($status){
+        $applicantList = M_Applicant::filterApplicantStatus($status);
+
+        return response()->json($applicantList, 200);
+    }
+
     
 }

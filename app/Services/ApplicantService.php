@@ -123,7 +123,7 @@ class ApplicantService
                 Log::error("Failed to process applicant {$applicant->id}");
             }
         }catch(Exception $e) {
-            Log::error('Error processing applicant resumes: ' . $e->getMessage());
+            Log::error('Error processing applicant resumes: ' . strip_tags($e->getMessage()));
         }
         
     }

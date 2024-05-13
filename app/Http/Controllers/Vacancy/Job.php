@@ -42,4 +42,32 @@ class Job extends Controller
         return response()->json($job, 200);
     }
 
+    public function updateJob(Request $request, $jobId){
+        $requestData = $request->validate([
+            'title' => 'required|string',
+            'description' => 'required',
+            'cities' => 'required',
+            'divisions' => 'required',
+            'requirements' => 'required',
+        ]);
+
+        $data=[
+            'title' => $requestData['title'],
+            'description' => $requestData['description'],
+            'cities' => $requestData['cities'],
+            'divisions' => $requestData['divisions'],
+            'requirements' => $requestData['requirements'],
+        ];
+
+        $job= M_Job::find($jobId);
+        if (!$job) {
+            return response()->json(["message" => "Job Id Not Found"], 404);
+        }
+
+        $job->fill($data);
+        $job->save();
+
+        return response()->json(["message" => "Job data updated", "job_title" => $data['title']], 200);
+    }
+
 }
